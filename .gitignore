@@ -2,6 +2,19 @@
 # Created by https://www.toptal.com/developers/gitignore/api/java
 # Edit at https://www.toptal.com/developers/gitignore?templates=java
 
+### Antlr ###
+.antlr
+
+### Eclispe ###
+.settings
+.classpath
+.project
+bin
+
+### Library ###
+lib
+
+
 ### Java ###
 # Compiled class file
 *.class
