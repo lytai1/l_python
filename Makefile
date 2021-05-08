@@ -8,8 +8,8 @@ GRAMMAR_NAME=LightPython
 GRAMMAR=${GRAMMAR_NAME}.g4
 TEST_CLASSPATH=${JUNIT_JAR}:${HAMCREST_JAR}:${ANTLR_JAR}
 LPY_SCRIPT_DIR=lpython
-SCRIPTS=op.lpy
-# SCRIPTS= boolean.lpy ifthenelsewhile.lpy list.lpy op.lpy simple.lpy strings.lpy
+# SCRIPTS=op.lpy
+SCRIPTS= boolean.lpy ifthenelsewhile.lpy list.lpy op.lpy simple.lpy strings.lpy
 TREES_DIR=parseTrees
 # Choosing build instead of bin to avoid conflicts with Eclipse
 BUILD_DIR=build

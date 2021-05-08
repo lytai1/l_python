@@ -33,6 +33,11 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
     }
 
     @Override 
+    public Statement visitIf_stmt(LightPythonParser.If_stmtContext ctx) { 
+        return visitChildren(ctx); 
+    }
+
+    @Override 
     public Statement visitWhile_stmt(LightPythonParser.While_stmtContext ctx) { 
         ExprStat cond = (ExprStat) visit(ctx.test());
         Statement body = visit(ctx.suite());
@@ -50,7 +55,30 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
     }
 
     @Override 
-    public Statement visitTest(LightPythonParser.TestContext ctx) { 
+    public Statement visitNot(LightPythonParser.NotContext ctx) { 
+        ExprStat es = (ExprStat) visit(ctx.test());
+        return new ExprStat(new NotOpExpr(es.toExpression())); 
+    }
+
+    @Override 
+    public Statement visitBoolOp(LightPythonParser.BoolOpContext ctx) { 
+        ExprStat es1 = (ExprStat) visit(ctx.test(0));
+        ExprStat es2 = (ExprStat) visit(ctx.test(1));
+        BoolOp bo = null;
+
+        switch(ctx.aon_op().getText()){
+            case "and":
+                bo = BoolOp.AND;
+            break;
+            case "or":
+                bo = BoolOp.OR;
+            break;
+        }
+        return new ExprStat(new BoolOpExpr(bo, es1.toExpression(), es2.toExpression())); 
+    }
+
+    @Override 
+    public Statement visitCompOp(LightPythonParser.CompOpContext ctx) { 
         ExprStat es1 = (ExprStat) visit(ctx.expr(0));
         ExprStat es2 = (ExprStat) visit(ctx.expr(1));
         Op o = null;
@@ -75,20 +103,13 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
             o = Op.NE;
             break;
         }
-        return new ExprStat(new BinOpExpr(o, es1.toExpression(), es2.toExpression()));
-
+        return new ExprStat(new BinOpExpr(o, es1.toExpression(), es2.toExpression())); 
     }
 
 	@Override 
     public Statement visitPrint_stmt(LightPythonParser.Print_stmtContext ctx) {
         ExprStat es = (ExprStat) visit(ctx.expr());
         return new PrintStat(es.toExpression()); 
-    }
-
-    @Override 
-    public Statement visitParen(LightPythonParser.ParenContext ctx) { 
-        ExprStat es = (ExprStat) visit(ctx.expr());
-        return es;
     }
 
 	@Override 
@@ -118,6 +139,15 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
         ExprStat es2 = (ExprStat) visit(ctx.expr(1));
         Op o = null;
 
+        if(es1.toExpression().evaluate(env) instanceof StringVal){
+            switch(ctx.op.getText()){
+                case "+":
+                o = Op.ADD;
+                break;
+            }
+            return new ExprStat (new StringOpExpr(o, es1.toExpression(), es2.toExpression()));
+        }
+
         switch(ctx.op.getText()){
             case "+":
             o = Op.ADD;
@@ -127,6 +157,26 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
         }
         return new ExprStat(new BinOpExpr(o, es1.toExpression(), es2.toExpression()));
     }
+
+    @Override 
+    public Statement visitNegposNum(LightPythonParser.NegposNumContext ctx) { 
+        ExprStat es1 = (ExprStat) visit(ctx.atom());
+        switch(ctx.sign.getText()){
+            case "+":
+            return es1;
+            case "-":
+            return new ExprStat(new BinOpExpr(Op.SUBTRACT, new ValueExpr(new IntVal(0)) , es1.toExpression()));
+        }
+        return es1;
+    }
+
+    @Override 
+    public Statement visitAtomTrailer(LightPythonParser.AtomTrailerContext ctx) { 
+        ExprStat es1 = (ExprStat) visit(ctx.atom());
+
+        return es1; 
+    }
+
 
 	@Override 
     public Statement visitVar(LightPythonParser.VarContext ctx) { 
@@ -140,6 +190,40 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
         return new ExprStat(new ValueExpr(new IntVal(val)));
     }
 
+    @Override 
+    public Statement visitString(LightPythonParser.StringContext ctx) { 
+        String str = ctx.STRING().getText();
+        str = str.substring(1, str.length()-1);
+        return new ExprStat(new ValueExpr(new StringVal(str))); 
+    }
 
+    @Override 
+    public Statement visitBoolean(LightPythonParser.BooleanContext ctx) { 
+        boolean bool = Boolean.parseBoolean(ctx.BOOLEAN().getText());
+        return new ExprStat(new ValueExpr(new BoolVal(bool))); 
+    }
+
+    @Override 
+    public Statement visitNone(LightPythonParser.NoneContext ctx) { 
+        return new ExprStat(new ValueExpr(new NoneVal())); 
+    }
+
+    @Override 
+    public Statement visitList(LightPythonParser.ListContext ctx) {
+        List<Value> l = new ArrayList<>();
+        for (int i=0; i<ctx.test().size(); i++) {
+            ExprStat es = (ExprStat) visit(ctx.test(i));
+            Value v = es.toExpression().evaluate(env);
+            l.add(v);
+        }
+        return new ExprStat(new ValueExpr(new ListVal(l))); 
+    }
+
+
+    @Override 
+    public Statement visitParen(LightPythonParser.ParenContext ctx) { 
+        ExprStat es = (ExprStat) visit(ctx.expr());
+        return es;
+    }
 
 }

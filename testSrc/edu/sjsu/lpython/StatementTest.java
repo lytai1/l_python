@@ -32,6 +32,29 @@ public class StatementTest {
 	}	
 	
 	@Test
+	public void testIfStat() {
+		Environment env = new Environment();
+		List<Expression> ifs = new ArrayList<>();
+		ifs.add(new ValueExpr(new BoolVal(false)));
+		ifs.add(new ValueExpr(new BoolVal(false)));
+		ifs.add(new ValueExpr(new BoolVal(true)));
+
+		List<Statement> blocks = new ArrayList<>();
+		blocks.add(new AssignStat("x", new ValueExpr(new IntVal(1))));
+		blocks.add(new AssignStat("x", new ValueExpr(new IntVal(2))));
+		blocks.add(new AssignStat("x", new ValueExpr(new IntVal(3))));
+		
+		Statement elsestat = new AssignStat("x", new ValueExpr(new IntVal(4)));
+		
+		IfStat is = new IfStat(ifs, blocks, elsestat);
+		is.evaluate(env);
+	    
+		assertEquals(new IntVal(3), env.resolveVar("x"));
+
+		
+	}
+	
+	@Test
 	public void testWhileStat() {
 		Environment env = new Environment();
 	    env.updateVar("x", new IntVal(10));
@@ -88,6 +111,96 @@ public class StatementTest {
 		assertEquals(env.resolveVar("x"), new IntVal(42));	
 		assertEquals(env.resolveVar("y"), new IntVal(32));			
 	}
+	
+    @Test
+    public void testListSliceStat() {
+    	Environment env = new Environment();
+		List<Value> l1 = new ArrayList<>();
+		l1.add(new IntVal(3));
+		l1.add(new BoolVal(true));
+		l1.add(new BoolVal(false));
+		l1.add(new BoolVal(false));
+		l1.add(new BoolVal(true));
+		l1.add(new IntVal(5));
+		ListVal lv1 = new ListVal(l1);
 		
+		List<Expression> le = new ArrayList<>();
+		le.add(new ListSliceExpr(new ValueExpr(new IntVal(1)), new ValueExpr(new IntVal(3)), new ValueExpr(new NoneVal())));
+		
+		ListStat ls = new ListStat(new ValueExpr(lv1), le);
+		
+		List<Value> l2 = new ArrayList<>();
+		l2.add(new BoolVal(true));
+		l2.add(new BoolVal(false));
+				
+    	assertEquals(ls.evaluate(env), new ListVal(l2));
+    }
+    
+    @Test
+    public void testListSliceStat2() {
+    	Environment env = new Environment();
+		List<Value> l1 = new ArrayList<>();
+		l1.add(new IntVal(3));
+		l1.add(new BoolVal(true));
+		l1.add(new BoolVal(false));
+		l1.add(new BoolVal(false));
+		l1.add(new BoolVal(true));
+		l1.add(new IntVal(5));
+		ListVal lv1 = new ListVal(l1);
+		
+		List<Expression> le = new ArrayList<>();
+		le.add(new ListSliceExpr(new ValueExpr(new NoneVal()), new ValueExpr(new NoneVal()), new ValueExpr(new IntVal(-2))));
+		
+		ListStat ls = new ListStat(new ValueExpr(lv1), le);
+		
+		List<Value> l2 = new ArrayList<>();
+		l2.add(new IntVal(5));
+		l2.add(new BoolVal(false));
+		l2.add(new BoolVal(true));
+				
+    	assertEquals(ls.evaluate(env), new ListVal(l2));
+    }
+    
+    @Test
+    public void testListGetStat() {
+    	Environment env = new Environment();
+      
+		List<Value> l = new ArrayList<>();
+		l.add(new IntVal(3));
+		l.add(new BoolVal(true));
+		l.add(new IntVal(5));
+		ListVal lv = new ListVal(l);
+		
+		List<Expression> le = new ArrayList<>();
+		le.add(new ListGetExpr(new ValueExpr(new IntVal(1))));
+		
+		ListStat ls = new ListStat(new ValueExpr(lv), le);
+		assertEquals(ls.evaluate(env), new BoolVal(true));
+    }
+		
+    @Test
+    public void testListGetStat2() {
+    	Environment env = new Environment();
+      
+		List<Value> l1 = new ArrayList<>();
+		l1.add(new IntVal(3));
+		l1.add(new BoolVal(true));
+		l1.add(new IntVal(5));
+		ListVal lv1 = new ListVal(l1);
+		
+		List<Value> l2 = new ArrayList<>();
+		l2.add(new IntVal(3));
+		l2.add(lv1);
+		l2.add(new BoolVal(true));
+		l2.add(new IntVal(5));
+		ListVal lv2 = new ListVal(l2);
+		
+		List<Expression> le = new ArrayList<>();
+		le.add(new ListGetExpr(new ValueExpr(new IntVal(1))));
+		le.add(new ListGetExpr(new ValueExpr(new IntVal(0))));
+		
+		ListStat ls = new ListStat(new ValueExpr(lv2), le);
+		assertEquals(ls.evaluate(env), new IntVal(3));
+    }
 
 }

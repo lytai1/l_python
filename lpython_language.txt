@@ -1,0 +1,22 @@
+v ::= Int
+    | Boolean
+    | String
+    | List
+    | None
+
+e ::= ValueExpr
+    | VarExpr
+    | BinOpExpr
+    | BoolOpExpr
+    | NotOpExpr
+    | StringOpExpr
+    | ListGetExpr
+    | ListOpExpr
+    | ListSpliceExpr
+
+s ::= ExprStat
+    | IfStat
+    | WhileStat
+    | SuitStat
+    | AssignStat
+    | PrintStat

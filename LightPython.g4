@@ -183,10 +183,11 @@ atom:
 ;
 
 
-trailer: '[' subscriptlist ']';
-subscriptlist: subscript (',' subscript)* ','?;
-subscript: test | test? ':' test? sliceop?;
-sliceop: ':' test?;
+trailer: 
+  '[' test ']' #ListGet
+  | '['test? ':' test? (':' test?)? ']' #ListSlice
+  ;
+
 
 /*
  * lexer rules

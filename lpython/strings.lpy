@@ -1,4 +1,4 @@
 x = "a" + "ab"
 y = "c" + "d"
-z = y + x + x
-print z
+z = y + x
+#print z

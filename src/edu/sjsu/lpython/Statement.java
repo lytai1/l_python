@@ -28,13 +28,43 @@ class ExprStat implements Statement {
 
         return this.expr.evaluate(env);
     }
+}
+
+class IfStat implements Statement {
+	private List<Expression> ifs;
+	private List<Statement> blocks;
+	private Statement elsestat;
+	
+	
+	public IfStat(List<Expression> ifs, List<Statement> blocks, Statement elsestat) {
+		super();
+		this.ifs = ifs;
+		this.blocks = blocks;
+		this.elsestat = elsestat;
+	}
 
 
+	@Override
+	public Value evaluate(Environment env) {
+		// TODO Auto-generated method stub
+		for(int i = 0; i<ifs.size(); i++) {
+			BoolVal b = (BoolVal) ifs.get(i).evaluate(env);
+			if (b.toBoolean()) {
+				Statement s = blocks.get(i);
+				return s.evaluate(env);	
+			}
+		}
+		if (elsestat != null) {
+			return elsestat.evaluate(env);
+		}
+		return null;
+	}
+	
 }
 
 
 /**
-* While statements (treated as expressions in FWJS, unlike JS).
+* While statements.
 */
 class WhileStat implements Statement {
  private Expression cond;
@@ -105,4 +135,37 @@ class PrintStat implements Statement {
      System.out.println(v.toString());
      return v;
  }
+}
+
+class ListStat implements Statement {
+	private Expression e1;
+	private List<Expression> expList;
+	
+	public ListStat(Expression e1, List<Expression> expList) {
+		this.e1 = e1;
+		this.expList = expList;
+	}
+
+	@Override
+	public Value evaluate(Environment env) {
+		// TODO Auto-generated method stub
+		Value v1 = e1.evaluate(env);
+		for(Expression exp: expList) {
+			ListVal lv1 = (ListVal) v1;
+			if(exp instanceof ListGetExpr) {
+				IntVal index = (IntVal) exp.evaluate(env);
+				v1 = lv1.get(index.toInt());
+			}else if (exp instanceof ListSliceExpr) {
+				ListVal lv2 = (ListVal) exp.evaluate(env);
+				Value start = lv2.get(0);
+				Value end 	= lv2.get(1);
+				Value slice = lv2.get(2);
+				v1 = lv1.getSlice(start, end, slice);
+			}
+			
+			
+		}
+		return v1;
+	}
+	
 }

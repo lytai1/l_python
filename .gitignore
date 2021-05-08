@@ -4,15 +4,20 @@
 
 ### Antlr ###
 .antlr
+generatedSrc
 
 ### Eclispe ###
 .settings
 .classpath
 .project
 bin
+build
 
 ### Library ###
 lib
+
+### makefile ###
+parseTrees
 
 
 ### Java ###

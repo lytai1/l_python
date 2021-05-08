@@ -50,51 +50,96 @@ class VarExpr implements Expression {
 * Currently only numbers are supported.
 */
 class BinOpExpr implements Expression {
- private Op op;
- private Expression e1;
- private Expression e2;
- public BinOpExpr(Op op, Expression e1, Expression e2) {
-     this.op = op;
-     this.e1 = e1;
-     this.e2 = e2;
- }
+	 private Op op;
+	 private Expression e1;
+	 private Expression e2;
+	 public BinOpExpr(Op op, Expression e1, Expression e2) {
+	     this.op = op;
+	     this.e1 = e1;
+	     this.e2 = e2;
+	 }
 
- @SuppressWarnings("incomplete-switch")
- public Value evaluate(Environment env) {
-     // YOUR CODE HERE
-     if(this.op == Op.EQ) {
-         Value v1 = e1.evaluate(env);
-         Value v2 = e2.evaluate(env);
-         return new BoolVal(v1.equals(v2));
-     }else if(this.op == Op.NE) {
-        Value v1 = e1.evaluate(env);
-        Value v2 = e2.evaluate(env);
-        return new BoolVal(!v1.equals(v2));
-    }
-     IntVal num1 = (IntVal) e1.evaluate(env);
-     IntVal num2 = (IntVal) e2.evaluate(env);
-     if(this.op == Op.ADD) {
-         return new IntVal(num1.toInt() + num2.toInt());
-     }else if (this.op == Op.SUBTRACT) {
-         return new IntVal(num1.toInt()-num2.toInt());
-     }else if (this.op == Op.MULTIPLY) {
-         return new IntVal(num1.toInt()*num2.toInt());
-     }else if (this.op == Op.DIVIDE) {
-         return new IntVal(num1.toInt()/num2.toInt());
-     }else if (this.op == Op.MOD) {
-         return new IntVal(num1.toInt()%num2.toInt());
-     }else if (this.op == Op.GE) {
-         return new BoolVal(num1.toInt() >= num2.toInt());
-     }else if (this.op == Op.GT) {
-         return new BoolVal(num1.toInt() > num2.toInt());
-     }else if (this.op == Op.LE) {
-         return new BoolVal(num1.toInt() <= num2.toInt());
-     }else if (this.op == Op.LT) {
-         return new BoolVal(num1.toInt() < num2.toInt());
-     }   	    	
- 	
-     return null;
- }
+	 @SuppressWarnings("incomplete-switch")
+	 public Value evaluate(Environment env) {
+	     // YOUR CODE HERE
+	     if(this.op == Op.EQ) {
+	         Value v1 = e1.evaluate(env);
+	         Value v2 = e2.evaluate(env);
+	         return new BoolVal(v1.equals(v2));
+	     }else if(this.op == Op.NE) {
+	        Value v1 = e1.evaluate(env);
+	        Value v2 = e2.evaluate(env);
+	        return new BoolVal(!v1.equals(v2));
+	    }
+		
+	    Value v1 = e1.evaluate(env);
+	    if(v1 instanceof IntVal) {
+	    	return intEvaluate((IntVal) v1, env);
+	    }else if (v1 instanceof StringVal) {
+	    	return stringEvaluate((StringVal) v1, env);
+	    }else if (v1 instanceof ListVal) {
+    		return listEvaluate((ListVal) v1, env);
+	    }
+	     
+	 	
+	     return null;
+	 }
+ 
+ 
+	 private Value intEvaluate(IntVal num1, Environment env) {
+//	     IntVal num1 = (IntVal) e1.evaluate(env);
+	     IntVal num2 = (IntVal) e2.evaluate(env);
+	     if(this.op == Op.ADD) {
+	         return new IntVal(num1.toInt() + num2.toInt());
+	     }else if (this.op == Op.SUBTRACT) {
+	         return new IntVal(num1.toInt()-num2.toInt());
+	     }else if (this.op == Op.MULTIPLY) {
+	         return new IntVal(num1.toInt()*num2.toInt());
+	     }else if (this.op == Op.DIVIDE) {
+	         return new IntVal(num1.toInt()/num2.toInt());
+	     }else if (this.op == Op.MOD) {
+	         return new IntVal(num1.toInt()%num2.toInt());
+	     }else if (this.op == Op.GE) {
+	         return new BoolVal(num1.toInt() >= num2.toInt());
+	     }else if (this.op == Op.GT) {
+	         return new BoolVal(num1.toInt() > num2.toInt());
+	     }else if (this.op == Op.LE) {
+	         return new BoolVal(num1.toInt() <= num2.toInt());
+	     }else if (this.op == Op.LT) {
+	         return new BoolVal(num1.toInt() < num2.toInt());
+	     }   
+	     return null;
+	 }
+	 
+	 private Value stringEvaluate(StringVal v1, Environment env) {
+		 Value v2 = e2.evaluate(env);
+		 if (this.op == Op.ADD) {
+			 return new StringVal(v1.toString() + v2.toString());
+		 }
+		 return null;
+	 }
+	 
+	 private Value listEvaluate(ListVal lv1, Environment env) {
+		 if(this.op == Op.ADD) {
+			ListVal lv2 = (ListVal) e2.evaluate(env);
+			List<Value> l1 = lv1.getList();
+			List<Value> l2 = lv2.getList();
+			List<Value> l3 = new ArrayList<>();
+			l3.addAll(l1);
+			l3.addAll(l2);
+			return new ListVal(l3);
+		 }else if(this.op == Op.MULTIPLY) {
+			 IntVal i2 = (IntVal) e2.evaluate(env);
+			 List<Value> l1 = lv1.getList();
+			 List<Value> l3 = new ArrayList<>();
+			 for(int i=0; i<i2.toInt(); i++) {
+				 l3.addAll(l1);
+			 }
+			 return new ListVal(l3);
+		 }
+		 return null;
+	 }
+ 
 }
 
 class BoolOpExpr implements Expression {
@@ -141,127 +186,29 @@ class NotOpExpr implements Expression {
 	}
 }
 
-class StringOpExpr implements Expression {
-	private Op op;
-	private Expression e1;
-	private Expression e2;
-	
-	public StringOpExpr(Op op, Expression e1, Expression e2) {
-		super();
-		this.op = op;
-		this.e1 = e1;
-		this.e2 = e2;
-	}
-
-	@Override
-	public Value evaluate(Environment env) {
-        StringVal v1 = (StringVal) e1.evaluate(env);
-        Value v2 = e2.evaluate(env);
-        if (op == Op.ADD) {
-            return new StringVal(v1.toString() + v2.toString());
-        }
-       return null;
-	}
-	
-}
-
 /**
  * Get value from List.
  * 
 */
 class ListGetExpr implements Expression {
-	private Expression e1;
-	private Expression e2;
-	public ListGetExpr(Expression e1, Expression e2) {
-		this.e1 = e1;
-		this.e2 = e2;
+	private Expression e;
+	public ListGetExpr(Expression e) {
+		this.e = e;
 	}
 	@Override
 	public Value evaluate(Environment env) {
 		// TODO Auto-generated method stub
-		ListVal l = (ListVal) e1.evaluate(env);
-		IntVal i = (IntVal) e2.evaluate(env);
-		
-		return l.get(i.toInt());
+		IntVal i = (IntVal) e.evaluate(env);
+		return i;
 	}
  }
 
-class ListOpExpr implements Expression {
-	private Op op;
-	private Expression e1;
-	private Expression e2;
-	public ListOpExpr(Op op, Expression e1, Expression e2) {
-		super();
-		this.op = op;
-		this.e1 = e1;
-		this.e2 = e2;
-	}
-	@Override
-	public Value evaluate(Environment env) {
-		// TODO Auto-generated method stub
-		ListVal lv1 = (ListVal) e1.evaluate(env);
-		Value v2 = e2.evaluate(env);
-		
-		if (v2 instanceof ListVal) {
-			if(this.op == Op.ADD) {
-				ListVal lv2 = (ListVal) v2;
-				List<Value> l1 = lv1.getList();
-				List<Value> l2 = lv2.getList();
-				List<Value> l3 = new ArrayList<>();
-				l3.addAll(l1);
-				l3.addAll(l2);
-				return new ListVal(l3);
-			}
-		} else if(v2 instanceof IntVal) {
-			IntVal i2 = (IntVal) v2;
-			List<Value> l1 = lv1.getList();
-			return new ListVal(opToList(l1, i2, op));
-			
-		}
-		
-	     
-		return null;
-     }
-	private List<Value> opToList(List<Value> l, IntVal i1, Op op) {
-		List<Value> result = new ArrayList<>();
-		
-		for (Value v : l) {
-			IntVal i2 = (IntVal) v;
-			Value v3 = null;
-			if(this.op == Op.ADD) {
-		         v3 = new IntVal(i1.toInt() + i2.toInt());
-		     }else if (this.op == Op.SUBTRACT) {
-		    	 v3 =  new IntVal(i1.toInt()-i2.toInt());
-		     }else if (this.op == Op.MULTIPLY) {
-		    	 v3 =  new IntVal(i1.toInt()*i2.toInt());
-		     }else if (this.op == Op.DIVIDE) {
-		    	 v3 =  new IntVal(i1.toInt()/i2.toInt());
-		     }else if (this.op == Op.MOD) {
-		    	 v3 =  new IntVal(i1.toInt()%i2.toInt());
-		     }else if (this.op == Op.GE) {
-		    	 v3 =  new BoolVal(i1.toInt() >= i2.toInt());
-		     }else if (this.op == Op.GT) {
-		    	 v3 =  new BoolVal(i1.toInt() > i2.toInt());
-		     }else if (this.op == Op.LE) {
-		    	 v3 =  new BoolVal(i1.toInt() <= i2.toInt());
-		     }else if (this.op == Op.LT) {
-		    	 v3 =  new BoolVal(i1.toInt() < i2.toInt());
-		     }
-			result.add(v3);
-		}
-		
-		return result;
-	}
-}
 
-class ListSpliceExpr implements Expression {
-	private Expression l;
+class ListSliceExpr implements Expression {
 	private Expression e1;
 	private Expression e2;
 	private Expression e3;
-	public ListSpliceExpr(Expression l, Expression e1, Expression e2, Expression e3) {
-		super();
-		this.l = l;
+	public ListSliceExpr(Expression e1, Expression e2, Expression e3) {
 		this.e1 = e1;
 		this.e2 = e2;
 		this.e3 = e3;
@@ -269,33 +216,15 @@ class ListSpliceExpr implements Expression {
 	@Override
 	public Value evaluate(Environment env) {
 		// TODO Auto-generated method stub
-		ListVal lv = (ListVal) l.evaluate(env);
-		List<Value> list = lv.getList();
+		List<Value> list = new ArrayList<>();
 
 		Value v1 = e1.evaluate(env);
 		Value v2 = e2.evaluate(env);
 		Value v3 = e3.evaluate(env);
 		
-		int i1 = 0;
-		int i2 = list.size();
-		int i3 = 1;
-		
-		if(v1 instanceof IntVal) {
-			IntVal iv1 = (IntVal) v1;
-			i1 = iv1.toInt();
-		}
-		if(v2 instanceof IntVal) {
-			IntVal iv2 = (IntVal) v2;
-			i2 = iv2.toInt();
-		}
-		if(v3 instanceof IntVal) {
-			IntVal iv3 = (IntVal) v3;
-			i3 = iv3.toInt();
-		}
-		list = list.subList(i1, i2);
-		if (i3 == -1) {
-			Collections.reverse(list);
-		}
+		list.add(v1);
+		list.add(v2);
+		list.add(v3);
 
 		return new ListVal(list);
 	}

@@ -128,9 +128,9 @@ public class ExpressionTest {
     }
     
     @Test
-    public void testStringOpExpr() {
+    public void testStringBinOpExpr() {
     	Environment env = new Environment();
-    	StringOpExpr soe = new StringOpExpr(Op.ADD, 
+    	BinOpExpr soe = new BinOpExpr(Op.ADD, 
     			new ValueExpr(new StringVal("Hello ")),
     			new ValueExpr(new StringVal("World"))
     			);
@@ -139,44 +139,9 @@ public class ExpressionTest {
         assertEquals(sv, new StringVal("Hello World"));
 
     }
-    
-    @Test
-    public void testGetListItemExpr() {
-        Environment env = new Environment();
-        
-		List<Value> l = new ArrayList<>();
-		l.add(new IntVal(3));
-		l.add(new BoolVal(true));
-		l.add(new IntVal(5));
-		
-		Value lst = new ListVal(l); 
-		Expression e = new ListGetExpr(new ValueExpr(lst), new ValueExpr(new IntVal(0)));
-		assertEquals(e.evaluate(env), new IntVal(3));
-    	
-    }
-    
-    @Test
-    public void testGetListItemOutOfBoundExpr() {
-    	try {
-    		Environment env = new Environment();
-    		        
-			List<Value> l = new ArrayList<>();
-			l.add(new IntVal(3));
-			l.add(new BoolVal(true));
-			l.add(new IntVal(5));
-    				
-			Value lst = new ListVal(l); 
-			Expression e = new ListGetExpr(new ValueExpr(lst), new ValueExpr(new IntVal(3)));
-			e.evaluate(env);
-			fail();
-		 }catch (Exception e) {
-			 
-		 }
-
-    }
 
     @Test
-    public void testListOpExpr() {
+    public void testListBinOpExpr() {
         Environment env = new Environment();
         
 		List<Value> l1 = new ArrayList<>();
@@ -189,7 +154,7 @@ public class ExpressionTest {
 		l2.add(new BoolVal(true));
 		l2.add(new IntVal(6));
 		
-		ListOpExpr e = new ListOpExpr(Op.ADD, 
+		BinOpExpr e = new BinOpExpr(Op.ADD, 
 				new ValueExpr(new ListVal(l1)),
 				new ValueExpr(new ListVal(l2)));
 		ListVal l3 = (ListVal) e.evaluate(env);
@@ -204,40 +169,87 @@ public class ExpressionTest {
 		l4.add(new IntVal(3));
 		l4.add(new IntVal(6));
 		l4.add(new IntVal(9));
-		e = new ListOpExpr(Op.ADD, 
+		e = new BinOpExpr(Op.MULTIPLY, 
 				new ValueExpr(new ListVal(l4)),
 				new ValueExpr(new IntVal(3)));
 		ListVal l5 = (ListVal) e.evaluate(env);
 		
 		List<Value> l6 = new ArrayList<>();
-		l6.add(new IntVal(6));
-		l6.add(new IntVal(9));
-		l6.add(new IntVal(12));
+		l6.addAll(l4);
+		l6.addAll(l4);
+		l6.addAll(l4);
 		
 		assertEquals(l5, new ListVal(l6));
     }
     
     @Test
-    public void testListSpliceExpr() {
-    	Environment env = new Environment();
+    public void testListSlice() {
 		List<Value> l1 = new ArrayList<>();
 		l1.add(new IntVal(3));
 		l1.add(new BoolVal(true));
-		l1.add(new BoolVal(false));
-		l1.add(new BoolVal(false));
+		l1.add(new IntVal(5));
+		l1.add(new IntVal(6));
+		l1.add(new IntVal(9));
+		l1.add(new IntVal(10));
+    	ListVal lv1 = new ListVal(l1);
+    	
+    	lv1 = (ListVal) lv1.getSlice(new IntVal(1), new IntVal(3), new NoneVal());
+    	
+		List<Value> l2 = new ArrayList<>();
+		l2.add(new BoolVal(true));
+		l2.add(new IntVal(5));
+    	ListVal lv2 = new ListVal(l2);
+
+    	
+    	assertEquals(lv1, lv2);
+    	
+    }
+    
+    @Test
+    public void testListSlice2() {
+		List<Value> l1 = new ArrayList<>();
+		l1.add(new IntVal(3));
 		l1.add(new BoolVal(true));
 		l1.add(new IntVal(5));
-    	ListSpliceExpr lse =  new ListSpliceExpr(
-    			new ValueExpr(new ListVal(l1)),
-    			new ValueExpr(new IntVal(1)),
-    			new ValueExpr(new IntVal(3)),
-    			new ValueExpr(new IntVal(-1))
-    			);
-    	ListVal lv = (ListVal) lse.evaluate(env);
+    	ListVal lv1 = new ListVal(l1);
+    	
+    	lv1 = (ListVal) lv1.getSlice(new NoneVal(), new NoneVal(), new IntVal(-1));
+    	
 		List<Value> l2 = new ArrayList<>();
-		l2.add(new BoolVal(false));
+		l2.add(new IntVal(5));
 		l2.add(new BoolVal(true));
-    	assertEquals(lv, new ListVal(l2));
+		l2.add(new IntVal(3));
+    	ListVal lv2 = new ListVal(l2);
+
+    	
+    	assertEquals(lv1, lv2);
+    	
+    }
+
+    @Test
+    public void testListSlice3() {
+		List<Value> l1 = new ArrayList<>();
+ 		l1.add(new IntVal(1));
+ 		l1.add(new IntVal(2));
+ 		l1.add(new IntVal(3));
+ 		l1.add(new IntVal(4));
+ 		l1.add(new IntVal(5));
+ 		l1.add(new IntVal(6));
+ 		l1.add(new IntVal(7));
+ 		l1.add(new IntVal(8));
+    	ListVal lv1 = new ListVal(l1);
+    	
+    	lv1 = (ListVal) lv1.getSlice(new IntVal(6), new IntVal(1), new IntVal(-2));
+    	
+		List<Value> l2 = new ArrayList<>();
+		l2.add(new IntVal(7));
+		l2.add(new IntVal(5));
+		l2.add(new IntVal(3));
+    	ListVal lv2 = new ListVal(l2);
+
+    	
+    	assertEquals(lv1, lv2);
+    	
     }
 
 }

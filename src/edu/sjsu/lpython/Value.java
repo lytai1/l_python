@@ -61,7 +61,36 @@ class ListVal implements Value {
 	public Value get(int i) {
     	return l.get(i);
     }
-	
+	public Value getSlice(Value start, Value end, Value slice) {
+		List<Value> result = new ArrayList<>();
+		int i3 = 1;
+		if(!(slice instanceof NoneVal))			i3 = ((IntVal) slice).toInt();
+		
+		if(i3>0) {
+			int i1 = 0;
+			int i2 = l.size();
+			if(!(start instanceof NoneVal))			i1 = ((IntVal) start).toInt();
+			if(!(end instanceof NoneVal)) 			i2 = ((IntVal) end).toInt();
+			
+			for(int i=i1; i<i2; i+=i3) {
+				result.add(l.get(i));
+			}
+		}else if(i3<0) {
+			int i1 = l.size()-1;
+			int i2 = -1;
+			if(!(start instanceof NoneVal))			i1 = ((IntVal) start).toInt();
+			if(!(end instanceof NoneVal)) 			i2 = ((IntVal) end).toInt();
+
+			for(int i=i1; i>i2; i+=i3) {
+				result.add(l.get(i));
+			}
+		}else {
+			return null;
+		}
+		
+		
+		return new ListVal(result);
+	}
 
 	@Override
 	public boolean equals(Object that) {
