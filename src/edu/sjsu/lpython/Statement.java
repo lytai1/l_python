@@ -125,47 +125,15 @@ class AssignStat implements Statement {
 * A print statement.
 */
 class PrintStat implements Statement {
- private Expression exp;
- public PrintStat(Expression exp) {
-     this.exp = exp;
+ private Statement s;
+ public PrintStat(Statement s) {
+     this.s = s;
  }
 
  public Value evaluate(Environment env) {
-     Value v = exp.evaluate(env);
+     Value v = s.evaluate(env);
      System.out.println(v.toString());
      return v;
  }
 }
 
-class ListStat implements Statement {
-	private Expression e1;
-	private List<Expression> expList;
-	
-	public ListStat(Expression e1, List<Expression> expList) {
-		this.e1 = e1;
-		this.expList = expList;
-	}
-
-	@Override
-	public Value evaluate(Environment env) {
-		// TODO Auto-generated method stub
-		Value v1 = e1.evaluate(env);
-		for(Expression exp: expList) {
-			ListVal lv1 = (ListVal) v1;
-			if(exp instanceof ListGetExpr) {
-				IntVal index = (IntVal) exp.evaluate(env);
-				v1 = lv1.get(index.toInt());
-			}else if (exp instanceof ListSliceExpr) {
-				ListVal lv2 = (ListVal) exp.evaluate(env);
-				Value start = lv2.get(0);
-				Value end 	= lv2.get(1);
-				Value slice = lv2.get(2);
-				v1 = lv1.getSlice(start, end, slice);
-			}
-			
-			
-		}
-		return v1;
-	}
-	
-}

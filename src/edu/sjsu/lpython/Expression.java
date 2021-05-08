@@ -116,6 +116,14 @@ class BinOpExpr implements Expression {
 		 if (this.op == Op.ADD) {
 			 return new StringVal(v1.toString() + v2.toString());
 		 }
+		 else if(this.op == Op.MULTIPLY) {
+			 IntVal i2 = (IntVal) v2;
+			 String str = "";
+			 for(int i=0; i<i2.toInt(); i++) {
+				 str += v1.toString();
+			 }
+			 return new StringVal(str);
+		 }
 		 return null;
 	 }
 	 
@@ -160,7 +168,7 @@ class BoolOpExpr implements Expression {
 	     BoolVal b1 = (BoolVal) e1.evaluate(env);
 	     BoolVal b2 = (BoolVal) e2.evaluate(env);
 	     if (this.bop == BoolOp.AND) {
-	    	 return new BoolVal(b1.toBoolean() && b2.toBoolean());
+	    	return new BoolVal(b1.toBoolean() && b2.toBoolean());
 	     }else if (this.bop == BoolOp.OR) {
 	    	 return new BoolVal(b1.toBoolean() || b2.toBoolean());
 	     }		
@@ -232,6 +240,37 @@ class ListSliceExpr implements Expression {
 	
 
 }
+class ListExpr implements Expression {
+	private Expression e1;
+	private List<Expression> expList;
+	
+	public ListExpr(Expression e1, List<Expression> expList) {
+		this.e1 = e1;
+		this.expList = expList;
+	}
 
+	@Override
+	public Value evaluate(Environment env) {
+		// TODO Auto-generated method stub
+		Value v1 = e1.evaluate(env);
+		for(Expression exp: expList) {
+			ListVal lv1 = (ListVal) v1;
+			if(exp instanceof ListGetExpr) {
+				IntVal index = (IntVal) exp.evaluate(env);
+				v1 = lv1.get(index.toInt());
+			}else if (exp instanceof ListSliceExpr) {
+				ListVal lv2 = (ListVal) exp.evaluate(env);
+				Value start = lv2.get(0);
+				Value end 	= lv2.get(1);
+				Value slice = lv2.get(2);
+				v1 = lv1.getSlice(start, end, slice);
+			}
+			
+			
+		}
+		return v1;
+	}
+	
+}
 
 

@@ -34,7 +34,21 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
 
     @Override 
     public Statement visitIf_stmt(LightPythonParser.If_stmtContext ctx) { 
-        return visitChildren(ctx); 
+        List<Expression> ifs = new ArrayList<>();
+        List<Statement> blocks = new ArrayList<>();
+        Statement elsestat = new ExprStat(new ValueExpr(new NoneVal()));
+
+        for(int i=0; i<ctx.test().size(); i++){
+            Expression ife = ((ExprStat) visit(ctx.test(i))).toExpression();
+            Statement block = visit(ctx.suite(i));
+            ifs.add(ife);
+            blocks.add(block);
+        }
+        if(ctx.suite().size()>ctx.test().size()){
+            elsestat = visit(ctx.suite(ctx.suite().size()-1));
+        }
+
+        return new IfStat(ifs, blocks, elsestat); 
     }
 
     @Override 
@@ -108,8 +122,7 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
 
 	@Override 
     public Statement visitPrint_stmt(LightPythonParser.Print_stmtContext ctx) {
-        ExprStat es = (ExprStat) visit(ctx.expr());
-        return new PrintStat(es.toExpression()); 
+        return new PrintStat(visit(ctx.expr())); 
     }
 
 	@Override 
@@ -139,15 +152,6 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
         ExprStat es2 = (ExprStat) visit(ctx.expr(1));
         Op o = null;
 
-        if(es1.toExpression().evaluate(env) instanceof StringVal){
-            switch(ctx.op.getText()){
-                case "+":
-                o = Op.ADD;
-                break;
-            }
-            return new ExprStat (new StringOpExpr(o, es1.toExpression(), es2.toExpression()));
-        }
-
         switch(ctx.op.getText()){
             case "+":
             o = Op.ADD;
@@ -173,8 +177,16 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
     @Override 
     public Statement visitAtomTrailer(LightPythonParser.AtomTrailerContext ctx) { 
         ExprStat es1 = (ExprStat) visit(ctx.atom());
+        if(ctx.trailer().size() == 0){
+            return es1;
+        }         
+        List<Expression> le = new ArrayList<>();
 
-        return es1; 
+        for(int i = 0; i< ctx.trailer().size(); i++){
+            Expression e = ((ExprStat) visit(ctx.trailer(i))).toExpression();
+            le.add(e);
+        }
+        return new ExprStat(new ListExpr(es1.toExpression(), le));
     }
 
 
@@ -225,5 +237,23 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
         ExprStat es = (ExprStat) visit(ctx.expr());
         return es;
     }
+    @Override 
+    public Statement visitListGet(LightPythonParser.ListGetContext ctx) { 
+        ExprStat es = (ExprStat) visit(ctx.test());
+        return new ExprStat(new ListGetExpr(es.toExpression())); 
+    }
+
+    @Override 
+    public Statement visitListSlice(LightPythonParser.ListSliceContext ctx) { 
+        ExprStat es1 = new ExprStat(new ValueExpr(new NoneVal()));
+        ExprStat es2 = new ExprStat(new ValueExpr(new NoneVal()));
+        ExprStat es3 = new ExprStat(new ValueExpr(new NoneVal()));
+        if(ctx.start() != null)     es1 = (ExprStat) visit(ctx.start());
+        if(ctx.end() != null)       es2 = (ExprStat) visit(ctx.end());
+        if(ctx.slice() != null)     es3 = (ExprStat) visit(ctx.slice());
+
+        return new ExprStat(new ListSliceExpr(es1.toExpression(),es2.toExpression(),es3.toExpression())); 
+    }
+
 
 }

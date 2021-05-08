@@ -9,10 +9,8 @@ e ::= ValueExpr
     | BinOpExpr
     | BoolOpExpr
     | NotOpExpr
-    | StringOpExpr
     | ListGetExpr
-    | ListOpExpr
-    | ListSpliceExpr
+    | ListSliceExpr
 
 s ::= ExprStat
     | IfStat
@@ -20,3 +18,4 @@ s ::= ExprStat
     | SuitStat
     | AssignStat
     | PrintStat
+    | ListStat

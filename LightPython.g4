@@ -185,9 +185,11 @@ atom:
 
 trailer: 
   '[' test ']' #ListGet
-  | '['test? ':' test? (':' test?)? ']' #ListSlice
+  | '['start? ':' end? (':' slice?)? ']' #ListSlice
   ;
-
+start: test;
+end: test;
+slice: test;
 
 /*
  * lexer rules

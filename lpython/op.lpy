@@ -12,9 +12,9 @@ this is also a comment
 z = x + y
 ''' I am a comment '''
 
-print x
-print y
-print z
+prin(x)
+print(y)
+print(z)
 
 a = True
 b = None
