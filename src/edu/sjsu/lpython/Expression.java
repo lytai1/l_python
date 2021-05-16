@@ -240,11 +240,11 @@ class ListSliceExpr implements Expression {
 	
 
 }
-class ListExpr implements Expression {
+class AtomTrailerExpr implements Expression {
 	private Expression e1;
 	private List<Expression> expList;
 	
-	public ListExpr(Expression e1, List<Expression> expList) {
+	public AtomTrailerExpr(Expression e1, List<Expression> expList) {
 		this.e1 = e1;
 		this.expList = expList;
 	}
@@ -273,4 +273,25 @@ class ListExpr implements Expression {
 	
 }
 
+class ListExpr implements Expression {
+	private List<Expression> expList;
+
+	public ListExpr(List<Expression> expList) {
+		super();
+		this.expList = expList;
+	}
+
+	@Override
+	public Value evaluate(Environment env) {
+		// TODO Auto-generated method stub
+		List<Value> values = new ArrayList<>();
+		
+		for(Expression exp: expList) {
+			values.add(exp.evaluate(env));
+		}
+		
+		return new ListVal(values);
+	}
+	
+}
 

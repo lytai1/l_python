@@ -8,8 +8,11 @@ GRAMMAR_NAME=LightPython
 GRAMMAR=${GRAMMAR_NAME}.g4
 TEST_CLASSPATH=${JUNIT_JAR}:${HAMCREST_JAR}:${ANTLR_JAR}
 LPY_SCRIPT_DIR=lpython
-SCRIPTS=strings.lpy
-# SCRIPTS= boolean.lpy ifthenelsewhile.lpy list.lpy op.lpy simple.lpy strings.lpy
+PY_SCRIPT_DIR=python
+
+# SCRIPTS=ifthenelsewhile.lpy
+SCRIPTS= boolean.lpy if_simple.lpy ifthenelsewhile.lpy list.lpy listvar.lpy op.lpy simple.lpy strings.lpy
+SCRIPTS_P= boolean.py if_simple.py ifthenelsewhile.py list.py listvar.py op.py simple.py strings.py
 TREES_DIR=parseTrees
 # Choosing build instead of bin to avoid conflicts with Eclipse
 BUILD_DIR=build
@@ -42,6 +45,11 @@ test:
 run:
 	$(foreach script, ${SCRIPTS}, echo "Running ${LPY_SCRIPT_DIR}/${script}"; \
 		java -cp ${BUILD_DIR}:${ANTLR_JAR} ${PACKAGE_NAME}.Interpreter ${LPY_SCRIPT_DIR}/${script};)
+
+runp:
+	$(foreach script, ${SCRIPTS_P}, echo "Running ${PY_SCRIPT_DIR}/${script}"; \
+		python ${PY_SCRIPT_DIR}/${script};)
+
 
 ${ZIP_FILE}:
 	zip ${ZIP_FILE} src/${SRC_FOLDERS}/*.java ${GRAMMAR}

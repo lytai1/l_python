@@ -11,6 +11,8 @@ e ::= ValueExpr
     | NotOpExpr
     | ListGetExpr
     | ListSliceExpr
+    | AtomTrailerExpr
+    | ListExprm
 
 s ::= ExprStat
     | IfStat
@@ -18,4 +20,3 @@ s ::= ExprStat
     | SuitStat
     | AssignStat
     | PrintStat
-    | ListStat

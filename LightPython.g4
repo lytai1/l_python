@@ -163,7 +163,7 @@ test: 'not' test #Not
     | expr comp_op expr #CompOp
     | expr #TestExpr
 ; 
-print_stmt: 'print' expr; // only for demonstration
+print_stmt: 'print(' expr ')'; // only for demonstration
 aon_op: 'and' | 'or';
 comp_op: '<' | '>' | '==' | '>=' | '<=' | '!=';
 expr:

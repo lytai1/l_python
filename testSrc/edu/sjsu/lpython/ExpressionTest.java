@@ -274,7 +274,7 @@ public class ExpressionTest {
 		List<Expression> le = new ArrayList<>();
 		le.add(new ListGetExpr(new ValueExpr(new IntVal(1))));
 		
-		ListExpr ls = new ListExpr(new ValueExpr(lv), le);
+		AtomTrailerExpr ls = new AtomTrailerExpr(new ValueExpr(lv), le);
 		assertEquals(ls.evaluate(env), new BoolVal(true));
     }
 		
@@ -299,7 +299,7 @@ public class ExpressionTest {
 		le.add(new ListGetExpr(new ValueExpr(new IntVal(1))));
 		le.add(new ListGetExpr(new ValueExpr(new IntVal(0))));
 		
-		ListExpr ls = new ListExpr(new ValueExpr(lv2), le);
+		AtomTrailerExpr ls = new AtomTrailerExpr(new ValueExpr(lv2), le);
 		assertEquals(ls.evaluate(env), new IntVal(3));
     }
     @Test
@@ -317,7 +317,7 @@ public class ExpressionTest {
 		List<Expression> le = new ArrayList<>();
 		le.add(new ListSliceExpr(new ValueExpr(new IntVal(1)), new ValueExpr(new IntVal(3)), new ValueExpr(new NoneVal())));
 		
-		ListExpr ls = new ListExpr(new ValueExpr(lv1), le);
+		AtomTrailerExpr ls = new AtomTrailerExpr(new ValueExpr(lv1), le);
 		
 		List<Value> l2 = new ArrayList<>();
 		l2.add(new BoolVal(true));
@@ -341,7 +341,7 @@ public class ExpressionTest {
 		List<Expression> le = new ArrayList<>();
 		le.add(new ListSliceExpr(new ValueExpr(new NoneVal()), new ValueExpr(new NoneVal()), new ValueExpr(new IntVal(-2))));
 		
-		ListExpr ls = new ListExpr(new ValueExpr(lv1), le);
+		AtomTrailerExpr ls = new AtomTrailerExpr(new ValueExpr(lv1), le);
 		
 		List<Value> l2 = new ArrayList<>();
 		l2.add(new IntVal(5));
@@ -351,6 +351,34 @@ public class ExpressionTest {
     	assertEquals(ls.evaluate(env), new ListVal(l2));
     }
     
+    @Test
+    public void testListExpr() {
+    	Environment env = new Environment();
+        env.updateVar("x", new BoolVal(true));
+
+    	
+    	List<Expression> expList = new ArrayList<>();
+    	expList.add(new ValueExpr(new IntVal(3)));
+    	expList.add(new ValueExpr(new IntVal(4)));
+    	expList.add(new BinOpExpr(Op.MULTIPLY, new ValueExpr(new IntVal(3)), new ValueExpr(new IntVal(3))));
+    	expList.add(new ValueExpr(new IntVal(1)));
+    	expList.add(new ValueExpr(new IntVal(2)));
+    	expList.add(new VarExpr("x"));
+    	
+    	ListExpr le = new ListExpr(expList);
+    	
+    	List<Value> lv = new ArrayList<>();
+    	lv.add(new IntVal(3));
+    	lv.add(new IntVal(4));
+    	lv.add(new IntVal(9));
+    	lv.add(new IntVal(1));
+    	lv.add(new IntVal(2));
+    	lv.add(new BoolVal(true));
+    	ListVal l = new ListVal(lv);
+    	
+    	assertEquals(le.evaluate(env), l);
+    	
+    }
 
 }
 

@@ -19,6 +19,8 @@ lib
 ### makefile ###
 parseTrees
 
+### Python ###
+.DS_Store
 
 ### Java ###
 # Compiled class file

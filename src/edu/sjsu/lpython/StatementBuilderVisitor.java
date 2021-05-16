@@ -186,7 +186,7 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
             Expression e = ((ExprStat) visit(ctx.trailer(i))).toExpression();
             le.add(e);
         }
-        return new ExprStat(new ListExpr(es1.toExpression(), le));
+        return new ExprStat(new AtomTrailerExpr(es1.toExpression(), le));
     }
 
 
@@ -222,13 +222,13 @@ public class StatementBuilderVisitor extends LightPythonBaseVisitor<Statement>{
 
     @Override 
     public Statement visitList(LightPythonParser.ListContext ctx) {
-        List<Value> l = new ArrayList<>();
+        List<Expression> l = new ArrayList<>();
         for (int i=0; i<ctx.test().size(); i++) {
             ExprStat es = (ExprStat) visit(ctx.test(i));
-            Value v = es.toExpression().evaluate(env);
+            Expression v = es.toExpression();
             l.add(v);
         }
-        return new ExprStat(new ValueExpr(new ListVal(l))); 
+        return new ExprStat(new ListExpr(l)); 
     }
 
 
